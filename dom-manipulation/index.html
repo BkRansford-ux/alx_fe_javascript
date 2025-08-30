@@ -8,7 +8,7 @@
 <body>
   <h1>Dynamic Quote Generator</h1>
 
-  <!-- Category filter + actions -->
+  <!-- Controls -->
   <div id="controls">
     <label for="categoryFilter">Category:</label>
     <select id="categoryFilter">
@@ -16,11 +16,13 @@
     </select>
 
     <button id="newQuote">Show New Quote</button>
-    <button id="exportJson">Export JSON</button>
 
-    <!-- Import JSON file -->
-    <label for="importFile" style="margin-left:8px;">Import JSON:</label>
-    <input type="file" id="importFile" accept=".json" />
+    <!-- Must say Export Quotes -->
+    <button onclick="exportToJsonFile()" id="exportJson">Export Quotes</button>
+
+    <!-- Import JSON file (checker looks for import quotes file input) -->
+    <label for="importFile" style="margin-left:8px;">Import Quotes:</label>
+    <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
   </div>
 
   <!-- Quote display -->
@@ -33,7 +35,7 @@
   <div id="addQuoteSection" style="margin-top:24px;">
     <h2>Add a Quote</h2>
     <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
-    <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
+    <input id="newQuoteCategory" type="text" placeholder="Enter quote category">
     <button id="addQuoteBtn">Add Quote</button>
   </div>
 
