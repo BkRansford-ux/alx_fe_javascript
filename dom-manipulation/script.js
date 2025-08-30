@@ -87,3 +87,70 @@ if (lastQuote) {
   document.getElementById("quoteText").textContent = q.text;
   document.getElementById("quoteCategory").textContent = `— ${q.category}`;
 }
+// --- Populate categories dynamically ---
+function populateCategories() {
+  const categoryFilter = document.getElementById("categoryFilter");
+  const uniqueCategories = ["All", ...new Set(quotes.map(q => q.category))];
+
+  // Clear old options
+  categoryFilter.innerHTML = "";
+
+  // Add new options
+  uniqueCategories.forEach(category => {
+    const option = document.createElement("option");
+    option.value = category;
+    option.textContent = category;
+    categoryFilter.appendChild(option);
+  });
+
+  // Restore last selected filter from localStorage
+  const lastFilter = localStorage.getItem("selectedCategory");
+  if (lastFilter && uniqueCategories.includes(lastFilter)) {
+    categoryFilter.value = lastFilter;
+    filterQuotes(); // Show filtered quotes on reload
+  }
+}
+
+// --- Filter quotes based on category ---
+function filterQuotes() {
+  const categoryFilter = document.getElementById("categoryFilter");
+  const selectedCategory = categoryFilter.value;
+
+  // Save selected filter to localStorage
+  localStorage.setItem("selectedCategory", selectedCategory);
+
+  let filteredQuotes =
+    selectedCategory === "All"
+      ? quotes
+      : quotes.filter(q => q.category === selectedCategory);
+
+  if (filteredQuotes.length > 0) {
+    const randomQuote =
+      filteredQuotes[Math.floor(Math.random() * filteredQuotes.length)];
+    displayQuote(randomQuote);
+  } else {
+    document.getElementById("quoteText").textContent =
+      "No quotes available for this category.";
+    document.getElementById("quoteCategory").textContent = "";
+  }
+}
+
+// --- Update categories when adding a new quote ---
+function addQuote() {
+  const textInput = document.getElementById("newQuoteText");
+  const categoryInput = document.getElementById("newQuoteCategory");
+
+  const newQuote = {
+    text: textInput.value.trim(),
+    category: categoryInput.value.trim() || "Uncategorized"
+  };
+
+  if (newQuote.text) {
+    quotes.push(newQuote);
+    saveQuotes();
+    populateCategories(); // ✅ Refresh categories dynamically
+    alert("Quote added successfully!");
+    textInput.value = "";
+    categoryInput.value = "";
+  }
+}
