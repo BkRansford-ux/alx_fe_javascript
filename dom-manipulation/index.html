@@ -4,38 +4,39 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dynamic Quote Generator</title>
-  <style>
-    /* Minimal styling to make it pleasant; not required by the task */
-    :root { --accent:#007BFF; }
-    body { font-family: Arial, sans-serif; background:#f4f4f4; color:#333; margin:0; padding:24px; }
-    h1 { text-align:center; margin-bottom:16px; }
-    .toolbar { display:flex; gap:12px; justify-content:center; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
-    select, input, button { padding:10px; border-radius:6px; border:1px solid #ccc; font-size:14px; }
-    button { background:var(--accent); color:#fff; border:none; cursor:pointer; }
-    button:hover { filter:brightness(0.9); }
-    #quoteDisplay { margin: 16px auto; padding: 20px; max-width: 680px; min-height: 80px;
-                    font-size: 1.1rem; font-style: italic; background:#fff; border-radius:8px;
-                    box-shadow: 0 2px 5px rgba(0,0,0,.08); display:flex; align-items:center; justify-content:center; text-align:center; }
-    .form { max-width: 700px; margin: 18px auto; background:#fff; padding:16px; border-radius:8px; box-shadow: 0 2px 5px rgba(0,0,0,.06); }
-    .row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
-    .row input { flex:1 1 220px; }
-    .note { text-align:center; color:#666; font-size:.9rem; margin-top:8px; }
-  </style>
 </head>
 <body>
   <h1>Dynamic Quote Generator</h1>
 
-  <!-- Toolbar is built/enhanced by JS (category filter + "Show New Quote" button) -->
-  <div class="toolbar">
-    <!-- JS will inject: category <select id="categoryFilter"> and the existing button below will be wired -->
+  <!-- Category filter + actions -->
+  <div id="controls">
+    <label for="categoryFilter">Category:</label>
+    <select id="categoryFilter">
+      <option value="All">All</option>
+    </select>
+
     <button id="newQuote">Show New Quote</button>
+    <button id="exportJson">Export JSON</button>
+
+    <!-- Import JSON file -->
+    <label for="importFile" style="margin-left:8px;">Import JSON:</label>
+    <input type="file" id="importFile" accept=".json" />
   </div>
 
-  <!-- Quote display area (required by the task) -->
-  <div id="quoteDisplay">Click “Show New Quote” or select a category.</div>
+  <!-- Quote display -->
+  <div id="quoteDisplay" style="margin-top:16px;">
+    <blockquote id="quoteText" style="font-size:1.2rem;margin:0;"></blockquote>
+    <div id="quoteCategory" style="opacity:.7;"></div>
+  </div>
 
-  <!-- JS will create the Add-Quote form dynamically -->
+  <!-- Add new quote -->
+  <div id="addQuoteSection" style="margin-top:24px;">
+    <h2>Add a Quote</h2>
+    <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
+    <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
+    <button id="addQuoteBtn">Add Quote</button>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
-
