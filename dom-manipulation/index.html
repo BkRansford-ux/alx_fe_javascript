@@ -11,14 +11,14 @@
   <!-- Controls -->
   <div id="controls">
     <label for="categoryFilter">Category:</label>
-    <select id="categoryFilter" onchange="filterQuotes()">
+    <select id="categoryFilter" onchange="filterQuote()">
       <option value="All">All Categories</option>
     </select>
 
     <button id="newQuote">Show New Quote</button>
 
     <!-- Must say Export Quotes -->
-    <button onclick="exportToJsonFile()" id="exportJson">Export Quotes</button>
+    <button id="exportJson" onclick="exportToJsonFile()">Export Quotes</button>
 
     <!-- Import JSON file (checker looks for import quotes file input) -->
     <label for="importFile" style="margin-left:8px;">Import Quotes:</label>
