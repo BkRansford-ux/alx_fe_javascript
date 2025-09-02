@@ -59,16 +59,31 @@ function filterQuotes() {
 // ==============================
 // Add New Quote
 // ==============================
-function addQuote() {
+async function addQuote() {
   const text = document.getElementById("newQuoteText").value.trim();
   const category = document.getElementById("newQuoteCategory").value.trim();
 
   if (!text || !category) return alert("Please enter both quote and category.");
 
-  quotes.push({ text, category });
+  const newQuote = { text, category };
+
+  // Save locally
+  quotes.push(newQuote);
   saveQuotes();
   populateCategories();
   filterQuotes();
+
+  // Post to server (mock API)
+  try {
+    await fetch("https://jsonplaceholder.typicode.com/posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newQuote)
+    });
+    notifyUser("Quote added and synced to server.");
+  } catch {
+    notifyUser("Quote added locally, but failed to sync to server.");
+  }
 
   document.getElementById("newQuoteText").value = "";
   document.getElementById("newQuoteCategory").value = "";
@@ -113,18 +128,26 @@ function importFromJsonFile(event) {
 }
 
 // ==============================
-// Sync with Server
+// Server Sync
 // ==============================
-async function syncQuotes() {
+async function fetchQuotesFromServer() {
   try {
     const res = await fetch("https://jsonplaceholder.typicode.com/posts?_limit=5");
     const serverData = await res.json();
 
-    // Convert server posts into our quote format
-    const serverQuotes = serverData.map(item => ({
+    return serverData.map(item => ({
       text: item.title,
       category: "Server"
     }));
+  } catch (err) {
+    console.error("Failed to fetch quotes from server:", err);
+    return [];
+  }
+}
+
+async function syncQuotes() {
+  try {
+    const serverQuotes = await fetchQuotesFromServer();
 
     // Conflict resolution: server data takes precedence
     const localTexts = new Set(serverQuotes.map(q => q.text));
@@ -142,7 +165,12 @@ async function syncQuotes() {
   }
 }
 
+// Run sync periodically (every 20s)
+setInterval(syncQuotes, 20000);
+
+// ==============================
 // Notifications
+// ==============================
 function notifyUser(message) {
   const div = document.createElement("div");
   div.textContent = message;
@@ -156,9 +184,6 @@ function notifyUser(message) {
   document.body.insertBefore(div, document.body.firstChild);
   setTimeout(() => div.remove(), 4000);
 }
-
-// Run sync periodically (every 20s)
-setInterval(syncQuotes, 20000);
 
 // ==============================
 // Event Listeners
