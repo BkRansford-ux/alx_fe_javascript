@@ -2,7 +2,6 @@
 // Dynamic Quote Generator Script
 // ==============================
 
-// Default quotes
 let quotes = JSON.parse(localStorage.getItem("quotes")) || [
   { text: "The best way to predict the future is to create it.", category: "Motivation" },
   { text: "Life is what happens when you’re busy making other plans.", category: "Life" },
@@ -13,12 +12,10 @@ const quoteText = document.getElementById("quoteText");
 const quoteCategory = document.getElementById("quoteCategory");
 const categoryFilter = document.getElementById("categoryFilter");
 
-// Save quotes to local storage
 function saveQuotes() {
   localStorage.setItem("quotes", JSON.stringify(quotes));
 }
 
-// Display a random quote
 function displayRandomQuote(filteredQuotes = quotes) {
   if (filteredQuotes.length === 0) {
     quoteText.textContent = "No quotes available for this category.";
@@ -31,7 +28,6 @@ function displayRandomQuote(filteredQuotes = quotes) {
   quoteCategory.textContent = `Category: ${quote.category}`;
 }
 
-// Populate categories dynamically
 function populateCategories() {
   const uniqueCategories = ["All", ...new Set(quotes.map(q => q.category))];
 
@@ -43,12 +39,10 @@ function populateCategories() {
     categoryFilter.appendChild(option);
   });
 
-  // Restore last selected category
   const lastSelected = localStorage.getItem("selectedCategory") || "All";
   categoryFilter.value = lastSelected;
 }
 
-// Filter quotes based on category
 function filterQuotes() {
   const selected = categoryFilter.value;
   localStorage.setItem("selectedCategory", selected);
@@ -61,25 +55,45 @@ function filterQuotes() {
   displayRandomQuote(filtered);
 }
 
-// Add a new quote
-document.getElementById("addQuoteBtn").addEventListener("click", () => {
+// ==============================
+// Add new quote + POST to server
+// ==============================
+document.getElementById("addQuoteBtn").addEventListener("click", async () => {
   const text = document.getElementById("newQuoteText").value.trim();
   const category = document.getElementById("newQuoteCategory").value.trim();
 
   if (text && category) {
-    quotes.push({ text, category });
+    const newQuote = { text, category };
+    quotes.push(newQuote);
     saveQuotes();
     populateCategories();
     filterQuotes();
+
     document.getElementById("newQuoteText").value = "";
     document.getElementById("newQuoteCategory").value = "";
+
+    // POST new quote to mock server
+    try {
+      const response = await fetch("https://jsonplaceholder.typicode.com/posts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(newQuote)
+      });
+      const result = await response.json();
+      console.log("Posted to server:", result);
+      notifyUser("New quote synced with server.");
+    } catch (err) {
+      console.error("Failed to post to server:", err);
+      notifyUser("Failed to sync with server.");
+    }
   }
 });
 
-// Show new quote button
-document.getElementById("newQuote").addEventListener("click", filterQuotes);
-
-// Export quotes to JSON file
+// ==============================
+// Export / Import
+// ==============================
 function exportToJsonFile() {
   const dataStr = JSON.stringify(quotes, null, 2);
   const blob = new Blob([dataStr], { type: "application/json" });
@@ -93,7 +107,6 @@ function exportToJsonFile() {
   URL.revokeObjectURL(url);
 }
 
-// Import quotes from JSON file
 function importFromJsonFile(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -123,13 +136,11 @@ async function fetchQuotesFromServer() {
     const res = await fetch("https://jsonplaceholder.typicode.com/posts?_limit=5");
     const serverData = await res.json();
 
-    // Convert mock server data to quote format
     const serverQuotes = serverData.map(item => ({
       text: item.title,
       category: "Server"
     }));
 
-    // Conflict resolution: server wins
     quotes = [...serverQuotes, ...quotes];
     saveQuotes();
     populateCategories();
@@ -141,7 +152,6 @@ async function fetchQuotesFromServer() {
   }
 }
 
-// Notify user of sync
 function notifyUser(message) {
   const div = document.createElement("div");
   div.textContent = message;
@@ -156,12 +166,10 @@ function notifyUser(message) {
   setTimeout(() => div.remove(), 4000);
 }
 
-// Auto-sync every 20 seconds
+// Auto-sync every 20s
 setInterval(fetchQuotesFromServer, 20000);
 
-// ==============================
-// Initialize
-// ==============================
+// Init
 window.onload = () => {
   populateCategories();
   filterQuotes();
